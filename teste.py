@@ -1,23 +1,52 @@
 import pandas as pd
-import plotly.express as px
+import numpy as np
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from pmdarima import auto_arima
 
-# Exemplo de DataFrame com faturamento mensal de dois anos
-data = {
-    'Mes': ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-    'Faturamento_2022': [1000, 1500, 2000, 1800, 2200, 2400, 2100, 1900, 1700, 2300, 2500, 2800],
-    'Faturamento_2023': [1100, 1600, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800]
-}
+# Crie um DataFrame de exemplo com datas e valores de faturamento.
+data = pd.DataFrame({
+    'Data': pd.date_range(start='2023-01-01', periods=30, freq='D'),
+    'Faturamento': np.random.randint(1000, 5000, size=30)
+})
 
-df = pd.DataFrame(data)
+# Defina 'Data' como o índice.
+data.set_index('Data', inplace=True)
 
-# Criar um gráfico interativo usando Plotly
-fig = px.line(df, x='Mes', y=['Faturamento_2022', 'Faturamento_2023'],
-              labels={'value': 'Faturamento'},
-              title='Faturamento Mensal - Comparação 2022 vs. 2023')
+# Escolha automaticamente os melhores hiperparâmetros do modelo ARIMA.
+model = auto_arima(data['Faturamento'], seasonal=False, stepwise=True, suppress_warnings=True)
 
-# Adicionar tooltips
-fig.update_traces(mode='lines+markers+text', hovertemplate='%{y:.2f}',
-                  texttemplate='%{y:.2f}', textposition='top center')
+# Ajuste o modelo ARIMA com os hiperparâmetros selecionados.
+order = model.get_params()['order']
+arima_model = ARIMA(data['Faturamento'], order=order)
+arima_fit = arima_model.fit()
 
-# Exibir o gráfico
-fig.show()
+# Faça previsões para um número específico de períodos no futuro.
+num_periods = 7  # Número de períodos para prever no futuro.
+forecast = arima_fit.forecast(steps=num_periods)
+
+# Crie um DataFrame com datas futuras.
+future_dates = pd.date_range(start=data.index[-1] + pd.DateOffset(1), periods=num_periods, freq='D')
+
+# Crie um DataFrame com as previsões.
+forecast_df = pd.DataFrame({
+    'Data': future_dates,
+    'Faturamento Previsto': forecast
+})
+
+# Defina 'Data' como o índice.
+forecast_df.set_index('Data', inplace=True)
+
+# Combine os dados de faturamento observados com as previsões.
+combined_data = pd.concat([data, forecast_df])
+
+# Plote o gráfico.
+plt.figure(figsize=(12, 6))
+plt.plot(combined_data.index, combined_data['Faturamento'], label='Faturamento Observado', marker='o')
+plt.plot(forecast_df.index, forecast_df['Faturamento Previsto'], label='Faturamento Previsto', linestyle='--', marker='o')
+plt.title('Previsão de Faturamento Futuro com ARIMA')
+plt.xlabel('Data')
+plt.ylabel('Faturamento')
+plt.legend()
+plt.grid(True)
+plt.show()
