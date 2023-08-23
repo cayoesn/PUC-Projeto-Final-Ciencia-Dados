@@ -20,7 +20,7 @@ filtro_data = "'{}' <= datapedido <= '{}'".format(data_anterior, data_atual)
 dados_stocks_filtrado = dados_stocks.query(filtro_data)
 
 dados_stocks_filtrado = dados_stocks_filtrado[[
-    'datapedido', 'totalliquido']].loc[dados_stocks_filtrado['statuspedido'] == 'ENTREGUE']
+    'datapedido', 'totalliquido']].loc[dados_stocks_filtrado['statuspedido'] == 'CANCELADO']
 
 # Substituindo valores nulos no totalliquido pelo médio dos valores da coluna
 dados_stocks_filtrado['totalliquido'].fillna(
@@ -69,17 +69,17 @@ forecast_df.set_index('datapedido_futura', inplace=True)
 combined_data = pd.concat([dados_stocks_agrupado, forecast_df])
 
 fig = go.Figure()
-fig.update_layout(title="Total de faturamento - Previsão de pedidos entregues")
+fig.update_layout(title="Total de faturamento - Previsão de pedidos cancelados")
 
 # Adicione a linha de faturamento atual
 fig.add_trace(go.Scatter(x=combined_data.index, y=combined_data['totalliquido'],
                          mode='lines+markers',
-                         name='Faturamento atual', line=dict(color='green')))
+                         name='Faturamento atual', line=dict(color='red')))
 
 # Adicione a linha de faturamento futuro
 fig.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['totalliquido_futuro'],
                          mode='lines+markers',
-                         name='Faturamento futuro', line=dict(color='blue')))
+                         name='Faturamento futuro', line=dict(color='orange')))
 
 fig.update_xaxes(title_text='Meses')
 fig.update_yaxes(title_text='Total de faturamento')

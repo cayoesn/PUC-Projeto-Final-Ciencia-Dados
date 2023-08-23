@@ -38,8 +38,6 @@ dados_stocks_agrupado['quantidade_pedido'] = 1
 dados_stocks_agrupado = dados_stocks_filtrado.groupby([dados_stocks_filtrado['datapedido'].dt.to_period(
     'M'), 'statuspedido']).agg({'totalliquido': 'sum', 'quantidade_pedido': 'count'}).reset_index()
 
-print(11, dados_stocks_agrupado)
-
 dados_datas_string = dados_stocks_agrupado['datapedido'].astype(str)
 dados_pedidos_entregues = np.array([], dtype=np.float64)
 dados_pedidos_cancelados = np.array([], dtype=np.float64)
@@ -72,14 +70,9 @@ fig.update_yaxes(title_text='Total de faturamento')
 
 fig.update_layout(legend_title_text='Pedidos')
 fig.update_traces(name='Pedidos entregues',
-                  selector=dict(name='Pedidos_Entregues'))
+                  selector=dict(name='Pedidos_Entregues'), line=dict(color='green'))
 fig.update_traces(name='Pedidos cancelados',
-                  selector=dict(name='Pedidos_Cancelados'))
-
-
-def formatar_moeda(valor):
-    return locale.currency(valor, grouping=True)
-
+                  selector=dict(name='Pedidos_Cancelados'), line=dict(color='red'))
 
 format_brl = 'R$ %{y:,.2f}'
 
