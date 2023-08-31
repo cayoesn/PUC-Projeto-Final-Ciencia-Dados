@@ -4,8 +4,8 @@ import locale
 
 import valor_faturamento
 import grafico_pedidos_entregues_cancelados
-# import previsao_pedidos_entregues
-# import previsao_pedidos_cancelados
+import previsao_pedidos_entregues
+import previsao_pedidos_cancelados
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
@@ -36,6 +36,13 @@ dados_stocks_filtrado.loc[dados_stocks_filtrado['totalliquido'] == 0,
 dados_stocks_filtrado['datapedido'] = pd.to_datetime(
     dados_stocks_filtrado['datapedido'])
 
-valor_faturamento.gerar_valor_faturamento(data_atual, dados_stocks_filtrado)
+dados_stocks_agrupado = dados_stocks_filtrado.groupby(pd.Grouper(
+    key='datapedido', freq='M')).agg({'totalliquido': 'sum'}).reset_index()
+
+valor_faturamento.gerar_valor_faturamento(data_atual, dados_stocks_agrupado)
 grafico_pedidos_entregues_cancelados.gerar_grafico_pedidos_entregues_cancelados(
+    dados_stocks_filtrado)
+previsao_pedidos_entregues.gerar_grafico_previsao_pedidos_entregues(
+    dados_stocks_filtrado)
+previsao_pedidos_cancelados.gerar_grafico_previsao_pedidos_cancelados(
     dados_stocks_filtrado)

@@ -7,15 +7,15 @@ locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
 def gerar_grafico_pedidos_entregues_cancelados(dados_pedidos):
-    dados_agrupado = dados_pedidos.groupby([dados_pedidos['datapedido'].dt.to_period(
+    dados_pedidos_agrupado = dados_pedidos.groupby([dados_pedidos['datapedido'].dt.to_period(
         'M'), 'statuspedido']).agg({'totalliquido': 'sum'}).reset_index()
 
-    dados_datas_string = dados_agrupado['datapedido'].astype(str)
+    dados_datas_string = dados_pedidos_agrupado['datapedido'].astype(str)
     dados_pedidos_entregues = np.array([], dtype=np.float64)
     dados_pedidos_cancelados = np.array([], dtype=np.float64)
 
-    for data in dados_agrupado['datapedido']:
-        dados_data = dados_agrupado[dados_agrupado['datapedido'] == data]
+    for data in dados_pedidos_agrupado['datapedido']:
+        dados_data = dados_pedidos_agrupado[dados_pedidos_agrupado['datapedido'] == data]
         valor_cancelado = dados_data[dados_data['statuspedido']
                                      == 'CANCELADO']['totalliquido'].values
         valor_entregue = dados_data[dados_data['statuspedido']
@@ -27,7 +27,7 @@ def gerar_grafico_pedidos_entregues_cancelados(dados_pedidos):
         dados_pedidos_entregues = np.append(
             dados_pedidos_entregues, valor_entregue)
 
-    dados_pedidos = pd.DataFrame({
+    dados_pedidos_agrupado = pd.DataFrame({
         'Mes': dados_datas_string.values,
         'Pedidos_Cancelados': dados_pedidos_cancelados,
         'Pedidos_Entregues': dados_pedidos_entregues,
@@ -41,14 +41,14 @@ def gerar_grafico_pedidos_entregues_cancelados(dados_pedidos):
     fig.update_layout(
         title="Faturamento Mensal - Comparação entre Pedidos Entregues e Cancelados")
 
-    fig.add_trace(go.Scatter(x=dados_pedidos['Mes'], y=dados_pedidos['Pedidos_Entregues'],
-                             text=dados_pedidos['Pedidos_Entregues_Formatados'],
+    fig.add_trace(go.Scatter(x=dados_pedidos_agrupado['Mes'], y=dados_pedidos_agrupado['Pedidos_Entregues'],
+                             text=dados_pedidos_agrupado['Pedidos_Entregues_Formatados'],
                              textposition='top center',
                              mode='lines+markers+text',
                              name='Pedidos entregues', line=dict(color='green')))
 
-    fig.add_trace(go.Scatter(x=dados_pedidos['Mes'], y=dados_pedidos['Pedidos_Cancelados'],
-                             text=dados_pedidos['Pedidos_Cancelados_Formatados'],
+    fig.add_trace(go.Scatter(x=dados_pedidos_agrupado['Mes'], y=dados_pedidos_agrupado['Pedidos_Cancelados'],
+                             text=dados_pedidos_agrupado['Pedidos_Cancelados_Formatados'],
                              textposition='top center',
                              mode='lines+markers+text',
                              name='Pedidos cancelados', line=dict(color='red')))
