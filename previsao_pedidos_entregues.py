@@ -68,27 +68,38 @@ forecast_df.set_index('datapedido_futura', inplace=True)
 # Combine os dados de faturamento observados com as previsões.
 combined_data = pd.concat([dados_stocks_agrupado, forecast_df])
 
+combined_data_formated = [f'R$ {valor:,.2f}'.replace('.', 'X').replace(
+    ',', '.').replace('X', ',') for valor in combined_data['totalliquido']]
+forecast_df_formated = [f'R$ {valor:,.2f}'.replace('.', 'X').replace(
+    ',', '.').replace('X', ',') for valor in forecast_df['totalliquido_futuro']]
+
 fig = go.Figure()
 fig.update_layout(title="Total de faturamento - Previsão de pedidos entregues")
 
 # Adicione a linha de faturamento atual
 fig.add_trace(go.Scatter(x=combined_data.index, y=combined_data['totalliquido'],
-                         mode='lines+markers',
+                         text=combined_data_formated,
+                         textposition='top center',
+                         mode='lines+markers+text',
                          name='Faturamento atual', line=dict(color='green')))
 
 # Adicione a linha de faturamento futuro
 fig.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['totalliquido_futuro'],
-                         mode='lines+markers',
+                         text=forecast_df_formated,
+                         textposition='top center',
+                         mode='lines+markers+text',
                          name='Faturamento futuro', line=dict(color='blue')))
 
 fig.update_xaxes(title_text='Meses')
 fig.update_yaxes(title_text='Total de faturamento')
 
+fig.update_layout(yaxis_tickformat=",."  # Usa ponto como separador de milhares e vírgula como separador decimal
+                  )
 fig.update_layout(legend_title_text='Faturamento')
 
-format_brl = 'R$ %{y:,.2f}'
+# format_brl = 'R$ %{y:,.2f}'
 
-fig.update_traces(mode='lines+markers+text', hovertemplate=format_brl,
-                  texttemplate=format_brl, textposition='top center')
+# fig.update_traces(mode='lines+markers+text', hovertemplate=format_brl,
+#                   texttemplate=format_brl, textposition='top center')
 
 fig.show()
