@@ -7,7 +7,7 @@ from pmdarima import auto_arima
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
-def gerar_grafico_previsao_pedidos_cancelados(dados_pedidos):
+def gerar_grafico_previsao_pedidos_cancelados(data_inicial, data_final, dados_pedidos):
     dados_pedidos_filtrado = dados_pedidos[[
         'datapedido', 'totalliquido']].loc[dados_pedidos['statuspedido'] == 'CANCELADO']
 
@@ -18,7 +18,7 @@ def gerar_grafico_previsao_pedidos_cancelados(dados_pedidos):
 
     # Escolha automaticamente os melhores hiperparâmetros do modelo ARIMA.
     model = auto_arima(dados_pedidos_agrupados['totalliquido'],
-                       seasonal=False, stepwise=True, suppress_warnings=True)
+                       seasonal=True, stepwise=True, suppress_warnings=True)
 
     # Ajuste o modelo ARIMA com os hiperparâmetros selecionados.
     order = model.get_params()['order']
@@ -52,23 +52,27 @@ def gerar_grafico_previsao_pedidos_cancelados(dados_pedidos):
 
     fig = go.Figure()
     fig.update_layout(
-        title="Total de faturamento - Previsão de pedidos cancelados")
+        title={
+            'text': 'Pedidos cancelados - Previsão de cancelamento - De: ' + data_inicial.strftime("%d/%m/%Y") + ' à ' + data_final.strftime("%d/%m/%Y"),
+            'x': 0.5, 'y': 0.95, 'xanchor': 'center', 'yanchor': 'top'
+        })
 
     # Adicione a linha de faturamento atual
     fig.add_trace(go.Scatter(x=combined_data.index, y=combined_data['totalliquido'],
                              text=combined_data_formated,
                              textposition='top center',
                              mode='lines+markers+text',
-                             name='Faturamento atual', line=dict(color='red')))
+                             name='Cancelamento atual', line=dict(color='red')))
 
     # Adicione a linha de faturamento futuro
     fig.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['totalliquido_futuro'],
                              text=forecast_df_formated,
                              textposition='top center',
                              mode='lines+markers+text',
-                             name='Faturamento futuro', line=dict(color='orange')))
+                             name='Cancelamento futuro', line=dict(color='orange')))
 
     fig.update_xaxes(title_text='Meses')
-    fig.update_yaxes(title_text='Total de faturamento')
-    fig.update_layout(legend_title_text='Faturamento')
-    fig.show()
+    fig.update_yaxes(title_text='Total de cancelamentos')
+    fig.update_layout(legend_title_text='Pedidos')
+
+    return fig

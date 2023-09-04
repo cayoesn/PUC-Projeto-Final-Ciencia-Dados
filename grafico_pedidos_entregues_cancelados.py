@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
-def gerar_grafico_pedidos_entregues_cancelados(dados_pedidos):
+def gerar_grafico_pedidos_entregues_cancelados(data_inicial, data_final, dados_pedidos):
     dados_pedidos_agrupado = dados_pedidos.groupby([dados_pedidos['datapedido'].dt.to_period(
         'M'), 'statuspedido']).agg({'totalliquido': 'sum'}).reset_index()
 
@@ -39,7 +39,10 @@ def gerar_grafico_pedidos_entregues_cancelados(dados_pedidos):
 
     fig = go.Figure()
     fig.update_layout(
-        title="Faturamento Mensal - Comparação entre Pedidos Entregues e Cancelados")
+        title={
+            'text': 'Faturamento Mensal - Comparação entre Pedidos Entregues e Cancelados - De: ' + data_inicial.strftime("%d/%m/%Y") + ' à ' + data_final.strftime("%d/%m/%Y"),
+            'x': 0.5,  'y': 0.95,  'xanchor': 'center', 'yanchor': 'top'
+        })
 
     fig.add_trace(go.Scatter(x=dados_pedidos_agrupado['Mes'], y=dados_pedidos_agrupado['Pedidos_Entregues'],
                              text=dados_pedidos_agrupado['Pedidos_Entregues_Formatados'],
@@ -56,4 +59,5 @@ def gerar_grafico_pedidos_entregues_cancelados(dados_pedidos):
     fig.update_xaxes(title_text='Meses')
     fig.update_yaxes(title_text='Total de faturamento')
     fig.update_layout(legend_title_text='Faturamento')
-    fig.show()
+
+    return fig

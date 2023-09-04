@@ -1,15 +1,13 @@
 import pandas as pd
-from datetime import datetime, timedelta
 import locale
 import plotly.graph_objects as go
-
 from statsmodels.tsa.arima.model import ARIMA
 from pmdarima import auto_arima
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
-def gerar_grafico_previsao_pedidos_entregues(dados_pedidos):
+def gerar_grafico_previsao_pedidos_entregues(data_inicial, data_final, dados_pedidos):
     dados_pedidos_filtrado = dados_pedidos[[
         'datapedido', 'totalliquido']].loc[dados_pedidos['statuspedido'] == 'ENTREGUE']
 
@@ -54,7 +52,10 @@ def gerar_grafico_previsao_pedidos_entregues(dados_pedidos):
 
     fig = go.Figure()
     fig.update_layout(
-        title="Total de faturamento - Previsão de pedidos entregues")
+        title={
+            'text': 'Pedidos entregues - Previsão de faturamento - De: ' + data_inicial.strftime("%d/%m/%Y") + ' à ' + data_final.strftime("%d/%m/%Y"),
+            'x': 0.5, 'y': 0.95, 'xanchor': 'center', 'yanchor': 'top'
+        })
 
     # Adicione a linha de faturamento atual
     fig.add_trace(go.Scatter(x=combined_data.index, y=combined_data['totalliquido'],
@@ -73,4 +74,5 @@ def gerar_grafico_previsao_pedidos_entregues(dados_pedidos):
     fig.update_xaxes(title_text='Meses')
     fig.update_yaxes(title_text='Total de faturamento')
     fig.update_layout(legend_title_text='Faturamento')
-    fig.show()
+
+    return fig

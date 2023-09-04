@@ -1,16 +1,14 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import locale
+import warnings
+import dashboards
 
-import valor_faturamento
-import grafico_pedidos_entregues_cancelados
-import previsao_pedidos_entregues
-import previsao_pedidos_cancelados
-
+warnings.filterwarnings("ignore")
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 data_atual = datetime.now().date()
-um_ano = timedelta(days=365)
+um_ano = timedelta(days=365 * 2)
 data_anterior = data_atual - um_ano
 
 dados_stocks = pd.read_csv("base_dados_pedidos_esp.csv",
@@ -18,31 +16,26 @@ dados_stocks = pd.read_csv("base_dados_pedidos_esp.csv",
 
 filtro_data = "'{}' <= datapedido <= '{}'".format(data_anterior, data_atual)
 
-dados_stocks_filtrado = dados_stocks.query(filtro_data)
+dados_pedidos_filtrado = dados_stocks.query(filtro_data)
 
 # Substituindo valores nulos no estado por valores que mais aparecem no dataset
-dados_stocks_filtrado['estado'].fillna(
-    dados_stocks_filtrado['estado'].mode()[0], inplace=True)
+dados_pedidos_filtrado['estado'].fillna(
+    dados_pedidos_filtrado['estado'].mode()[0], inplace=True)
 
 # Substituindo valores nulos no totalliquido pelo médio dos valores da coluna
-dados_stocks_filtrado['totalliquido'].fillna(
-    dados_stocks_filtrado['totalliquido'].mean())
+dados_pedidos_filtrado['totalliquido'].fillna(
+    dados_pedidos_filtrado['totalliquido'].mean())
 
 # Substituindo valores 0 no totalliquido pelo médio dos valores da coluna
-dados_stocks_filtrado.loc[dados_stocks_filtrado['totalliquido'] == 0,
-                          'totalliquido'] = dados_stocks_filtrado['totalliquido'].mean()
+dados_pedidos_filtrado.loc[dados_pedidos_filtrado['totalliquido'] == 0,
+                          'totalliquido'] = dados_pedidos_filtrado['totalliquido'].mean()
 
 # Transformando coluna datapedido em datetime para calculo de datas
-dados_stocks_filtrado['datapedido'] = pd.to_datetime(
-    dados_stocks_filtrado['datapedido'])
+dados_pedidos_filtrado['datapedido'] = pd.to_datetime(
+    dados_pedidos_filtrado['datapedido'])
 
-dados_stocks_agrupado = dados_stocks_filtrado.groupby(pd.Grouper(
+dados_pedidos_agrupado = dados_pedidos_filtrado.groupby(pd.Grouper(
     key='datapedido', freq='M')).agg({'totalliquido': 'sum'}).reset_index()
 
-valor_faturamento.gerar_valor_faturamento(data_atual, dados_stocks_agrupado)
-grafico_pedidos_entregues_cancelados.gerar_grafico_pedidos_entregues_cancelados(
-    dados_stocks_filtrado)
-previsao_pedidos_entregues.gerar_grafico_previsao_pedidos_entregues(
-    dados_stocks_filtrado)
-previsao_pedidos_cancelados.gerar_grafico_previsao_pedidos_cancelados(
-    dados_stocks_filtrado)
+dashboards = dashboards.DashboardPedidos(data_anterior, data_atual, dados_pedidos_agrupado, dados_pedidos_filtrado)
+dashboards.run()
