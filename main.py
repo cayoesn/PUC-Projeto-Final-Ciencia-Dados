@@ -8,15 +8,15 @@ warnings.filterwarnings("ignore")
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 data_atual = datetime.now().date()
-um_ano = timedelta(days=365 * 2)
+um_ano = timedelta(days=365)
 data_anterior = data_atual - um_ano
 
-dados_stocks = pd.read_csv("base_dados_pedidos_esp.csv",
+dados_pedidos = pd.read_csv("base_dados_pedidos_uni.csv",
                            encoding='utf-8', low_memory=False)
 
 filtro_data = "'{}' <= datapedido <= '{}'".format(data_anterior, data_atual)
 
-dados_pedidos_filtrado = dados_stocks.query(filtro_data)
+dados_pedidos_filtrado = dados_pedidos.query(filtro_data)
 
 # Substituindo valores nulos no estado por valores que mais aparecem no dataset
 dados_pedidos_filtrado['estado'].fillna(
