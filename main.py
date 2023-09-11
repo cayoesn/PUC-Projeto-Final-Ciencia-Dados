@@ -11,7 +11,7 @@ data_atual = datetime.now().date()
 um_ano = timedelta(days=365)
 data_anterior = data_atual - um_ano
 
-dados_pedidos = pd.read_csv("base_dados_pedidos_uni.csv",
+dados_pedidos = pd.read_csv("base_dados_pedidos_esp.csv",
                            encoding='utf-8', low_memory=False)
 
 filtro_data = "'{}' <= datapedido <= '{}'".format(data_anterior, data_atual)
@@ -37,5 +37,5 @@ dados_pedidos_filtrado['datapedido'] = pd.to_datetime(
 dados_pedidos_agrupado = dados_pedidos_filtrado.groupby(pd.Grouper(
     key='datapedido', freq='M')).agg({'totalliquido': 'sum'}).reset_index()
 
-dashboards = dashboards.DashboardPedidos(data_anterior, data_atual, dados_pedidos_agrupado, dados_pedidos_filtrado)
+dashboards = dashboards.DashboardPedidos(data_anterior, data_atual, dados_pedidos_filtrado)
 dashboards.run()

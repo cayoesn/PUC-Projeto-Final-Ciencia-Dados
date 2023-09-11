@@ -13,11 +13,10 @@ warnings.filterwarnings("ignore")
 
 
 class DashboardPedidos:
-    def __init__(self, data_inicial, data_final, dados_pedidos_agrupado, dados_pedidos_filtrado):
+    def __init__(self, data_inicial, data_final, dados_pedidos_filtrado):
         self.app = dash.Dash(__name__)
         self.data_inicial = data_inicial
         self.data_final = data_final
-        self.dados_pedidos_agrupado = dados_pedidos_agrupado
         self.dados_pedidos_filtrado = dados_pedidos_filtrado
 
         self.app.layout = html.Div([
@@ -41,7 +40,7 @@ class DashboardPedidos:
         )
         def update_charts(_):
             fig1 = valor_faturamento.gerar_valor_faturamento_comparacao_porcentagem(
-                self.data_final, self.dados_pedidos_agrupado)
+                self.data_final, self.dados_pedidos_filtrado)
             fig2 = grafico_pedidos_entregues_cancelados.gerar_grafico_pedidos_entregues_cancelados(
                 data_inicial, data_final, dados_pedidos_filtrado)
             fig3 = previsao_pedidos_entregues.gerar_grafico_previsao_pedidos_entregues(

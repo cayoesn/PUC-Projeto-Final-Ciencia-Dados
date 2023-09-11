@@ -15,10 +15,10 @@ def gerar_valor_faturamento_comparacao_valor(data_atual, dados_pedidos):
     ano_mes_passado = primeiro_dia_do_mes_passado.year
     mes_passado = primeiro_dia_do_mes_passado.month
 
-    faturamento_mes_passado = dados_pedidos.loc[(dados_pedidos['datapedido'].dt.month == mes_passado) & (
+    faturamento_mes_passado = dados_pedidos.loc[(dados_pedidos['statuspedido'] == 'ENTREGUE') & (dados_pedidos['datapedido'].dt.month == mes_passado) & (
         dados_pedidos['datapedido'].dt.year == ano_mes_passado)]['totalliquido'].sum()
 
-    faturamento_mes_atual = dados_pedidos.loc[(dados_pedidos['datapedido'].dt.month == mes_atual) & (
+    faturamento_mes_atual = dados_pedidos.loc[(dados_pedidos['statuspedido'] == 'ENTREGUE') & (dados_pedidos['datapedido'].dt.month == mes_atual) & (
         dados_pedidos['datapedido'].dt.year == ano_atual)]['totalliquido'].sum()
 
     fig = go.Figure()
@@ -43,10 +43,10 @@ def gerar_valor_faturamento_comparacao_porcentagem(data_atual, dados_pedidos):
     ano_mes_passado = primeiro_dia_do_mes_passado.year
     mes_passado = primeiro_dia_do_mes_passado.month
 
-    faturamento_mes_passado = dados_pedidos.loc[(dados_pedidos['datapedido'].dt.month == mes_passado) & (
+    faturamento_mes_passado = dados_pedidos.loc[(dados_pedidos['statuspedido'] == 'ENTREGUE') & (dados_pedidos['datapedido'].dt.month == mes_passado) & (
         dados_pedidos['datapedido'].dt.year == ano_mes_passado)]['totalliquido'].sum()
 
-    faturamento_mes_atual = dados_pedidos.loc[(dados_pedidos['datapedido'].dt.month == mes_atual) & (
+    faturamento_mes_atual = dados_pedidos.loc[(dados_pedidos['statuspedido'] == 'ENTREGUE') & (dados_pedidos['datapedido'].dt.month == mes_atual) & (
         dados_pedidos['datapedido'].dt.year == ano_atual)]['totalliquido'].sum()
 
     fig = go.Figure()

@@ -18,7 +18,7 @@ def gerar_grafico_previsao_pedidos_entregues(data_inicial, data_final, dados_ped
 
     # Escolha automaticamente os melhores hiperparâmetros do modelo ARIMA.
     model = auto_arima(dados_pedidos_agrupados['totalliquido'],
-                       seasonal=False, stepwise=True, suppress_warnings=True)
+                       seasonal=True, stepwise=True, suppress_warnings=True)
 
     # Ajuste o modelo ARIMA com os hiperparâmetros selecionados.
     order = model.get_params()['order']
