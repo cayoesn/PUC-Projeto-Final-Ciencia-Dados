@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore")
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 data_atual = datetime.now().date()
-um_ano = timedelta(days=365)
+um_ano = timedelta(days=365*2)
 data_anterior = data_atual - um_ano
 
 dados_pedidos = pd.read_csv("base_dados_pedidos_esp.csv",
